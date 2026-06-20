@@ -179,15 +179,28 @@ std::string LibraryActivity::formatFolderName(const std::string& name) const {
   std::replace(formatted.begin(), formatted.end(), '_', ' ');
 
   bool capitalizeNext = true;
-  for (char& c : formatted) {
-    if (std::isspace(static_cast<unsigned char>(c))) {
+  for (size_t i = 0; i < formatted.size();) {
+    unsigned char ch = static_cast<unsigned char>(formatted[i]);
+    if (std::isspace(ch)) {
       capitalizeNext = true;
-      continue;
-    }
-
-    if (capitalizeNext) {
-      c = std::toupper(static_cast<unsigned char>(c));
+      ++i;
+    } else if (ch >= 0x80) {
+      // Multi-byte UTF-8 character — skip all its bytes, don't capitalize
       capitalizeNext = false;
+      if (ch < 0xC0)
+        ++i;  // continuation byte (shouldn't happen at start)
+      else if (ch < 0xE0)
+        i += 2;  // 2-byte sequence (Cyrillic, etc.)
+      else if (ch < 0xF0)
+        i += 3;  // 3-byte sequence
+      else
+        i += 4;  // 4-byte sequence
+    } else {
+      if (capitalizeNext) {
+        formatted[i] = static_cast<char>(std::toupper(ch));
+      }
+      capitalizeNext = false;
+      ++i;
     }
   }
 

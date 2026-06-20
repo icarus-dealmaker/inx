@@ -1,0 +1,17 @@
+{
+  "name": "Inx",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.platformio,target=/root/.platformio,type=bind,consistency=cached"
+  ],
+  "postCreateCommand": "pio pkg install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "platformio.platformio-ide"
+      ]
+    }
+  }
+}
