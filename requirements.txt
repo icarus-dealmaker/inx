@@ -1,0 +1,3 @@
+# font generation
+freetype-py
+fontTools
